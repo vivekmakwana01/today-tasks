@@ -39,7 +39,15 @@ export const AuthProvider = ({ children }) => {
       .auth()
       .signInWithPopup(provider)
       .then(() => {
-        return true;
+        return {
+          success: true,
+        };
+      })
+      .catch((error) => {
+        return {
+          success: false,
+          data: error,
+        };
       });
   };
 
@@ -51,20 +59,32 @@ export const AuthProvider = ({ children }) => {
       await res.user.updateProfile({
         displayName: `${formData.firstName} ${formData.lastName}`,
       });
-      return true;
+      return {
+        success: true,
+        data: res.user,
+      };
     } catch (error) {
-      console.log(error);
+      return {
+        success: false,
+        data: error,
+      };
     }
   };
 
   const signInWithEmailAndPassword = async (formData) => {
     try {
-      await firebase
+      const res = await firebase
         .auth()
         .signInWithEmailAndPassword(formData.email, formData.password);
-      return true;
+      return {
+        success: true,
+        data: res.user,
+      };
     } catch (error) {
-      console.log(error);
+      return {
+        success: false,
+        data: error,
+      };
     }
   };
 

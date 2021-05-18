@@ -13,6 +13,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { useHistory } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,9 +33,15 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
-
   signInWithGoogle: {
     marginBottom: theme.spacing(2),
+  },
+  alert: {
+    width: "100%",
+    marginTop: 16,
+  },
+  buttonSpinner: {
+    color: "white",
   },
 }));
 
@@ -42,6 +49,11 @@ export default function SignIn() {
   const { signInWithEmailAndPassword, signInWithPopup } = useAuth();
   const classes = useStyles();
   const history = useHistory();
+  const [alert, setAlert] = useState({
+    severity: "",
+    content: "",
+  });
+  const [disabled, setDisabled] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -50,7 +62,6 @@ export default function SignIn() {
     email: false,
     password: false,
   });
-  const [disabled, setDisabled] = useState(false);
 
   const changeInput = (e) => {
     const { value, name } = e.target;
@@ -73,16 +84,53 @@ export default function SignIn() {
     setFormError(errorCopy);
     if (!error) {
       setDisabled(true);
-      await signInWithEmailAndPassword(formData);
+      setAlert({
+        severity: "info",
+        content: "Logging in...",
+      });
+      const res = await signInWithEmailAndPassword(formData);
       setDisabled(false);
-      history.push("/");
+      if (res.success) {
+        setAlert({
+          severity: "success",
+          content: "Login success. Redirecting to Home page",
+        });
+        history.push("/");
+      } else {
+        setAlert({
+          severity: "error",
+          content: res.data.message,
+        });
+      }
     }
   };
 
   const handleLogin = async () => {
+    setDisabled(true);
+    setAlert({
+      severity: "info",
+      content: "Logging in...",
+    });
     const res = await signInWithPopup();
-    if (res) {
+    setDisabled(false);
+    if (res.success) {
+      setAlert({
+        severity: "success",
+        content: "Login success. Redirecting to Home page",
+      });
       history.push("/");
+    } else {
+      if (res.data.code === "auth/popup-closed-by-user") {
+        setAlert({
+          severity: "error",
+          content: "Login popup closed by user",
+        });
+      } else {
+        setAlert({
+          severity: "error",
+          content: "Something went wrong!",
+        });
+      }
     }
   };
 
@@ -96,6 +144,11 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
+        {alert.severity && (
+          <Alert severity={alert.severity} className={classes.alert}>
+            {alert.content}
+          </Alert>
+        )}
         <form className={classes.form} noValidate onSubmit={handleSignIn}>
           <TextField
             variant="outlined"

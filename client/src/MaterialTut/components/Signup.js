@@ -11,6 +11,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { useHistory } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import Alert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -30,12 +31,21 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  alert: {
+    width: "100%",
+    marginTop: 16,
+  },
 }));
 
 export default function SignUp() {
   const { createUserWithEmailAndPassword } = useAuth();
   const classes = useStyles();
   const history = useHistory();
+  const [alert, setAlert] = useState({
+    severity: "",
+    content: "",
+  });
+  const [disabled, setDisabled] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -69,8 +79,25 @@ export default function SignUp() {
     });
     setFormError(errorCopy);
     if (!error) {
-      await createUserWithEmailAndPassword(formData);
-      history.push("/");
+      setDisabled(true);
+      setAlert({
+        severity: "info",
+        content: "Signing up...",
+      });
+      const res = await createUserWithEmailAndPassword(formData);
+      setDisabled(false);
+      if (res.success) {
+        setAlert({
+          severity: "success",
+          content: "Sign up success. Redirecting to Home page",
+        });
+        history.push("/");
+      } else {
+        setAlert({
+          severity: "error",
+          content: res.data.message,
+        });
+      }
     }
   };
 
@@ -84,6 +111,11 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
+        {alert.severity && (
+          <Alert severity={alert.severity} className={classes.alert}>
+            {alert.content}
+          </Alert>
+        )}
         <form className={classes.form} onSubmit={handleSignUp} noValidate>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -139,6 +171,7 @@ export default function SignUp() {
             variant="contained"
             color="primary"
             className={classes.submit}
+            disabled={disabled}
           >
             Sign Up
           </Button>
