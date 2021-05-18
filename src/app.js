@@ -40,9 +40,15 @@ app.delete("/notes/:id", async (req, res) => {
   const _id = req.params.id;
   try {
     const noteData = await Note.findByIdAndDelete({ _id });
-    res.status(200).send(noteData);
+    res.status(200).json({
+      success: true,
+      data: noteData,
+    });
   } catch (e) {
-    res.status(404).send(e);
+    res.status(404).json({
+      success: false,
+      data: e,
+    });
   }
 });
 
@@ -50,9 +56,15 @@ app.post("/notes", async (req, res) => {
   const note = new Note(req.body);
   try {
     await note.save();
-    res.status(201).send(note);
+    res.status(201).json({
+      success: true,
+      data: note,
+    });
   } catch (e) {
-    res.status(400).send(e);
+    res.status(400).json({
+      success: false,
+      data: e,
+    });
   }
 });
 

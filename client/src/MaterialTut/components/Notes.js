@@ -5,6 +5,7 @@ import Masonry from "react-masonry-css";
 import axios from "axios";
 import Skeleton from "react-loading-skeleton";
 import { useAuth } from "../hooks/useAuth";
+import Alert from "@material-ui/lab/Alert";
 
 let url = "";
 if (process.env.NODE_ENV === "production") {
@@ -33,23 +34,45 @@ const useStyles = makeStyles({
     height: "calc(100vh - 112px)",
     overflow: "auto",
   },
+  alert: {
+    marginBottom: 10,
+  },
 });
 
 export default function Notes() {
   const classes = useStyles();
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [alert, setAlert] = useState({
+    severity: "",
+    content: "",
+  });
   const { user } = useAuth();
 
   const deleteHandler = async (_id) => {
     try {
-      await axios({
+      const res = await axios({
         method: "delete",
-        url: `${url}/notes/${_id}`,
+        url: `${url}notes/${_id}`,
       });
-      const newNotes = notes.filter((note) => note._id !== _id);
-      setNotes(newNotes);
+      if (res.data.success) {
+        const newNotes = notes.filter((note) => note._id !== _id);
+        setNotes(newNotes);
+        setAlert({
+          severity: "success",
+          content: "Note deleted",
+        });
+      } else {
+        setAlert({
+          severity: "error",
+          content: "Something went wrong!",
+        });
+      }
     } catch (error) {
+      setAlert({
+        severity: "error",
+        content: "Something went wrong!",
+      });
       console.log(error);
     }
   };
@@ -78,6 +101,11 @@ export default function Notes() {
 
   return (
     <Container className={classes.container}>
+      {alert.severity && (
+        <Alert severity={alert.severity} className={classes.alert}>
+          {alert.content}
+        </Alert>
+      )}
       {loading ? (
         <Grid container spacing={5} justify="space-between">
           <Grid item xs={12} sm={6} md={4}>

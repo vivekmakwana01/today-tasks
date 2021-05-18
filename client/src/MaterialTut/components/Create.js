@@ -16,6 +16,7 @@ import { KeyboardArrowRight } from "@material-ui/icons";
 import { useHistory } from "react-router";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
+import Alert from "@material-ui/lab/Alert";
 
 let url = "";
 if (process.env.NODE_ENV === "production") {
@@ -45,6 +46,10 @@ export default function Create() {
   const [detailsError, setDetailsError] = useState(false);
   const [category, setCategory] = useState("todos");
   const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState({
+    severity: "",
+    content: "",
+  });
 
   const { user } = useAuth();
 
@@ -61,16 +66,30 @@ export default function Create() {
     if (title && details) {
       try {
         setLoading(true);
-        await axios.post(`${url}notes`, {
+        setAlert({
+          severity: "info",
+          content: "Creating a note...",
+        });
+        const res = await axios.post(`${url}notes`, {
           title: title,
           details: details,
           category: category,
           uid: user.uid,
         });
+        if (res.data.success) {
+          setAlert({
+            severity: "success",
+            content: "New note created.",
+          });
+          history.push("/");
+        } else {
+          setAlert({
+            severity: "error",
+            content: "Something went wrong!",
+          });
+        }
         setLoading(false);
-        history.push("/");
       } catch (error) {
-        console.log(error);
         setLoading(false);
       }
     }
@@ -86,6 +105,9 @@ export default function Create() {
       >
         Create a New Note
       </Typography>
+      {alert.severity && (
+        <Alert severity={alert.severity}>{alert.content}</Alert>
+      )}
       <form noValidate autoComplete="off" onSubmit={handleSubmit}>
         <TextField
           onChange={(e) => setTitle(e.target.value)}
