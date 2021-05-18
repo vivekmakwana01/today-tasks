@@ -7,7 +7,7 @@ import Skeleton from "react-loading-skeleton";
 import { useAuth } from "../hooks/useAuth";
 
 let url = "";
-if (process.env.NODE_URI === "production") {
+if (process.env.NODE_ENV === "production") {
   url = "https://today-tasks-1412.herokuapp.com/";
 } else {
   url = "http://localhost:8000/";

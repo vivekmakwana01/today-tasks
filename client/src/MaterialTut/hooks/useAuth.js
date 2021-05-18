@@ -12,6 +12,17 @@ var firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 
+firebase
+  .auth()
+  .setPersistence(firebase.auth.Auth.Persistence.NONE)
+  .then(() => {})
+  .catch((error) => {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    console.log(`Persistence error: ${errorCode}: ${errorMessage}`);
+  });
+
 const AuthContext = createContext();
 export const provider = new firebase.auth.GoogleAuthProvider();
 
