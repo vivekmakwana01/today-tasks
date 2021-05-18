@@ -6,6 +6,13 @@ import axios from "axios";
 import Skeleton from "react-loading-skeleton";
 import { useAuth } from "../hooks/useAuth";
 
+let url = "";
+if (process.env.NODE_URI === "production") {
+  url = "https://today-tasks-1412.herokuapp.com/";
+} else {
+  url = "http://localhost:8000/";
+}
+
 const useStyles = makeStyles({
   svg: {
     width: 128,
@@ -38,7 +45,7 @@ export default function Notes() {
     try {
       await axios({
         method: "delete",
-        url: `http://localhost:8000/notes/${_id}`,
+        url: `${url}/notes/${_id}`,
       });
       const newNotes = notes.filter((note) => note._id !== _id);
       setNotes(newNotes);
@@ -51,7 +58,7 @@ export default function Notes() {
     try {
       axios({
         method: "get",
-        url: `http://localhost:8000/notes/${user.uid}`,
+        url: `${url}notes/${user.uid}`,
       }).then((res) => {
         setLoading(false);
         if (res.data.length !== 0) {

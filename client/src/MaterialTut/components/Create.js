@@ -17,6 +17,13 @@ import { useHistory } from "react-router";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 
+let url = "";
+if (process.env.NODE_URI === "production") {
+  url = "https://today-tasks-1412.herokuapp.com/";
+} else {
+  url = "http://localhost:8000/";
+}
+
 const useStyles = makeStyles({
   field: {
     marginTop: 20,
@@ -54,7 +61,7 @@ export default function Create() {
     if (title && details) {
       try {
         setLoading(true);
-        await axios.post("http://localhost:8000/notes", {
+        await axios.post(`${url}notes`, {
           title: title,
           details: details,
           category: category,
