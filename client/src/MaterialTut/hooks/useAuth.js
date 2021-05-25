@@ -14,7 +14,7 @@ firebase.initializeApp(firebaseConfig);
 
 firebase
   .auth()
-  .setPersistence(firebase.auth.Auth.Persistence.NONE)
+  .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .then(() => {})
   .catch((error) => {
     // Handle Errors here.

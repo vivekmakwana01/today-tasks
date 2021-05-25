@@ -25,7 +25,7 @@ const drawerWidth = 240;
 const useStyles = makeStyles((theme) => {
   return {
     page: {
-      background: "#f9f9f9",
+      backgroundColor: theme.palette.background.default,
       width: "100%",
       padding: theme.spacing(3),
     },
